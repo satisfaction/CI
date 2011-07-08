@@ -67,6 +67,9 @@ while true
   dev_build = Jenkins::Job.get('dev', host, port)
   release_build = Jenkins::Job.get('release', host, port)
 
+  debug "Dev status: #{dev_build.status}" 
+  debug "Release status: #{release_build.status}" 
+
   # wait 2 seconds! Why 2 seconds, well because I SAYS SO!
   sleep 2
 
