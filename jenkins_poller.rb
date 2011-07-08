@@ -20,15 +20,17 @@ module Jenkins
     '' => NONE,
     'red' => FAILURE,
     'blue' => SUCCESS,
-    'red_anime' => RUNNING
+    'anime' => RUNNING
   }
 
   class Job
     attr_reader :name, :status    
 
     def initialize(opts)
-      @name   = opts['name']
-      @status = STATUS[opts['color']]
+      color = (opts['color'] =~ /anime/ ? 'anime' : opts['color']) 
+
+      @name = opts['name']
+      @status = STATUS[color]
     end
   
     def self.get(job_name, host, port)
