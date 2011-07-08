@@ -11,14 +11,16 @@ def debug(message)
 end
 
 module Jenkins
+  NONE = 0
   FAILURE = 1
   SUCCESS = 2
   RUNNING = 4
 
   STATUS = {
+    '' => NONE,
     'red' => FAILURE,
     'blue' => SUCCESS,
-    'anime' => RUNNING
+    'red_anime' => RUNNING
   }
 
   class Job
