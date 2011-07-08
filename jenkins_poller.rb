@@ -65,6 +65,7 @@ while true
   current_status = dev_build.status
   
   if dev_build.is_running? 
+    puts 'is runno'
     the_ball.build_initiated
   elsif dev_build.success? 
     the_ball.build_succesfull
