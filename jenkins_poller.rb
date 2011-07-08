@@ -2,26 +2,31 @@ require 'rubygems'
 require 'glowy_orb'
 require 'json'
 require 'net/http'
+require 'ruby-debug'
+
+DEBUG = 1
+
+def debug(message)
+  puts message if DEBUG == 1
+end
 
 module Jenkins
+  FAILURE = 1
+  SUCCESS = 2
+  RUNNING = 4
+
+  STATUS = {
+    'red' => FAILURE,
+    'blue' => SUCCESS,
+    'anime' => RUNNING
+  }
+
   class Job
     attr_reader :name, :status    
 
     def initialize(opts)
       @name   = opts['name']
-      @status = opts['color']
-    end
-  
-    def is_running?
-      @status =~ /anime/
-    end
-  
-    def success?
-      @status =~ /blue/
-    end
-  
-    def failure?
-      @status =~ /red/
+      @status = STATUS[opts['color']]
     end
   
     def self.get(job_name, host, port)
@@ -51,28 +56,35 @@ end
 # GET host and port from de command line PARAMS
 host, port = ARGV
 
-Jenkins.set_config( host, port )
+Jenkins.set_config(host, port)
 the_ball = GlowyOrb.new
 
-the_ball.build_initiated
 current_status = ''
 
 while true
   dev_build = Jenkins::Job.get('dev', host, port)
+  release_build = Jenkins::Job.get('release', host, port)
+
   # wait 2 seconds! Why 2 seconds, well because I SAYS SO!
   sleep 2
-  next if current_status == dev_build.status
-  current_status = dev_build.status
+
+  new_status = dev_build.status | release_build.status
+  next if new_status == current_status 
+  current_status = new_status
+
+  debug "Current Status bit value: #{current_status}"
   
-  if dev_build.is_running? 
-    puts 'is runno'
+  if current_status & Jenkins::RUNNING == Jenkins::RUNNING
+    debug 'Running'
     the_ball.build_initiated
-  elsif dev_build.success? 
+  elsif current_status == Jenkins::SUCCESS
+    debug 'Success'
     the_ball.build_succesfull
-  elsif dev_build.failure?
+  elsif current_status & Jenkins::FAILURE == Jenkins::FAILURE
+    debug 'Failure'
     the_ball.build_failure
   else
-    #turn off the ball
+    debug "Off"
   end
 
 end
