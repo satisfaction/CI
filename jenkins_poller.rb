@@ -4,7 +4,7 @@ require 'json'
 require 'net/http'
 require 'ruby-debug'
 
-DEBUG = 1
+DEBUG = 0
 
 def debug(message)
   puts message if DEBUG == 1
